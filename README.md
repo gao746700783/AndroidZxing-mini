@@ -1,2 +1,2 @@
-# AndroidZxing-master
-基于zxing实现的二维码扫描AS版(完整版);zxing地址:https://github.com/zxing/zxing;
+# AndroidZxing-mini
+基于Androidzxing的二维码扫描AS版(精简版);zxing地址见:https://github.com/zxing/zxing
