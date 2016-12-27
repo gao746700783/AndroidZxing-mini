@@ -29,6 +29,9 @@ import android.os.Message;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -41,8 +44,12 @@ import com.google.zxing.BarcodeFormat;
 import com.google.zxing.DecodeHintType;
 import com.google.zxing.Result;
 import com.google.zxing.client.android.camera.CameraManager;
+import com.google.zxing.client.android.consts.HelpActivity;
 import com.google.zxing.client.android.consts.IntentSource;
+import com.google.zxing.client.android.consts.Intents;
 import com.google.zxing.client.android.consts.PreferencesActivity;
+import com.google.zxing.client.android.decoding.DecodeFormatManager;
+import com.google.zxing.client.android.decoding.DecodeHintManager;
 import com.google.zxing.client.android.helper.AmbientLightManager;
 import com.google.zxing.client.android.helper.BeepManager;
 import com.google.zxing.client.android.helper.FinishListener;
@@ -165,18 +172,6 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
 //        }
 //    }
 
-    ViewfinderView getViewfinderView() {
-        return viewfinderView;
-    }
-
-    public Handler getHandler() {
-        return handler;
-    }
-
-    public CameraManager getCameraManager() {
-        return cameraManager;
-    }
-
     @Override
     public void onCreate(Bundle icicle) {
         super.onCreate(icicle);
@@ -222,6 +217,7 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
 
         if (prefs.getBoolean(PreferencesActivity.KEY_DISABLE_AUTO_ORIENTATION, true)) {
+            //noinspection WrongConstant
             setRequestedOrientation(getCurrentOrientation());
         } else {
             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT);
@@ -236,10 +232,6 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
         // 恢复活动监控器
         inactivityTimer.onResume();
 
-//        Intent intent = getIntent();
-//
-//        copyToClipboard = prefs.getBoolean(PreferencesActivity.KEY_COPY_TO_CLIPBOARD, true)
-//                && (intent == null || intent.getBooleanExtra(Intents.Scan.SAVE_HISTORY, true));
 
         source = IntentSource.NONE;
         sourceUrl = null;
@@ -247,64 +239,64 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
         decodeFormats = null;
         characterSet = null;
 
-//        if (intent != null) {
-//
-//            String action = intent.getAction();
-//            String dataString = intent.getDataString();
-//
-//            if (Intents.Scan.ACTION.equals(action)) {
-//
-//                // Scan the formats the intent requested, and return the result to the calling activity.
-//                source = IntentSource.NATIVE_APP_INTENT;
-//                decodeFormats = DecodeFormatManager.parseDecodeFormats(intent);
-//                decodeHints = DecodeHintManager.parseDecodeHints(intent);
-//
-//                if (intent.hasExtra(Intents.Scan.WIDTH) && intent.hasExtra(Intents.Scan.HEIGHT)) {
-//                    int width = intent.getIntExtra(Intents.Scan.WIDTH, 0);
-//                    int height = intent.getIntExtra(Intents.Scan.HEIGHT, 0);
-//                    if (width > 0 && height > 0) {
-//                        cameraManager.setManualFramingRect(width, height);
-//                    }
-//                }
-//
-//                if (intent.hasExtra(Intents.Scan.CAMERA_ID)) {
-//                    int cameraId = intent.getIntExtra(Intents.Scan.CAMERA_ID, -1);
-//                    if (cameraId >= 0) {
-//                        cameraManager.setManualCameraId(cameraId);
-//                    }
-//                }
-//
-//                String customPromptMessage = intent.getStringExtra(Intents.Scan.PROMPT_MESSAGE);
-//                if (customPromptMessage != null) {
-//                    statusView.setText(customPromptMessage);
-//                }
-//
-//            } else if (dataString != null &&
-//                    dataString.contains("http://www.google") &&
-//                    dataString.contains("/m/products/scan")) {
-//
-//                // Scan only products and send the result to mobile Product Search.
-//                source = IntentSource.PRODUCT_SEARCH_LINK;
-//                sourceUrl = dataString;
-//                decodeFormats = DecodeFormatManager.PRODUCT_FORMATS;
-//
-//            } else if (isZXingURL(dataString)) {
-//
-//                // Scan formats requested in query string (all formats if none specified).
-//                // If a return URL is specified, send the results there. Otherwise, handle it ourselves.
-//                source = IntentSource.ZXING_LINK;
-//                sourceUrl = dataString;
-//                Uri inputUri = Uri.parse(dataString);
-//                scanFromWebPageManager = new ScanFromWebPageManager(inputUri);
-//                decodeFormats = DecodeFormatManager.parseDecodeFormats(inputUri);
-//                // Allow a sub-set of the hints to be specified by the caller.
-//                decodeHints = DecodeHintManager.parseDecodeHints(inputUri);
-//
-//            }
-//
-//            characterSet = intent.getStringExtra(Intents.Scan.CHARACTER_SET);
-//
-//        }
+        Intent intent = getIntent();
+        if (intent != null) {
+
+            String action = intent.getAction();
+            String dataString = intent.getDataString();
+
+            if (Intents.Scan.ACTION.equals(action)) {
+
+                // Scan the formats the intent requested, and return the result to the calling activity.
+                source = IntentSource.NATIVE_APP_INTENT;
+                decodeFormats = DecodeFormatManager.parseDecodeFormats(intent);
+                decodeHints = DecodeHintManager.parseDecodeHints(intent);
+
+                if (intent.hasExtra(Intents.Scan.WIDTH) && intent.hasExtra(Intents.Scan.HEIGHT)) {
+                    int width = intent.getIntExtra(Intents.Scan.WIDTH, 0);
+                    int height = intent.getIntExtra(Intents.Scan.HEIGHT, 0);
+                    if (width > 0 && height > 0) {
+                        cameraManager.setManualFramingRect(width, height);
+                    }
+                }
+
+                if (intent.hasExtra(Intents.Scan.CAMERA_ID)) {
+                    int cameraId = intent.getIntExtra(Intents.Scan.CAMERA_ID, -1);
+                    if (cameraId >= 0) {
+                        cameraManager.setManualCameraId(cameraId);
+                    }
+                }
+
+                String customPromptMessage = intent.getStringExtra(Intents.Scan.PROMPT_MESSAGE);
+                if (customPromptMessage != null) {
+                    statusView.setText(customPromptMessage);
+                }
+
+            } else if (dataString != null &&
+                    dataString.contains("http://www.google") &&
+                    dataString.contains("/m/products/scan")) {
+
+                // Scan only products and send the result to mobile Product Search.
+                source = IntentSource.PRODUCT_SEARCH_LINK;
+                sourceUrl = dataString;
+                decodeFormats = DecodeFormatManager.PRODUCT_FORMATS;
+
+            } /*else if (isZXingURL(dataString)) {
+
+                // Scan formats requested in query string (all formats if none specified).
+                // If a return URL is specified, send the results there. Otherwise, handle it ourselves.
+                source = IntentSource.ZXING_LINK;
+                sourceUrl = dataString;
+                Uri inputUri = Uri.parse(dataString);
+                scanFromWebPageManager = new ScanFromWebPageManager(inputUri);
+                decodeFormats = DecodeFormatManager.parseDecodeFormats(inputUri);
+                // Allow a sub-set of the hints to be specified by the caller.
+                decodeHints = DecodeHintManager.parseDecodeHints(inputUri);
+
+            }*/
+
+            characterSet = intent.getStringExtra(Intents.Scan.CHARACTER_SET);
+        }
 
         SurfaceView surfaceView = (SurfaceView) findViewById(R.id.preview_view);
         SurfaceHolder surfaceHolder = surfaceView.getHolder();
@@ -318,27 +310,6 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
 
             // Install the callback and wait for surfaceCreated() to init the camera.
             surfaceHolder.addCallback(this);
-        }
-    }
-
-    private int getCurrentOrientation() {
-        int rotation = getWindowManager().getDefaultDisplay().getRotation();
-        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
-            switch (rotation) {
-                case Surface.ROTATION_0:
-                case Surface.ROTATION_90:
-                    return ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE;
-                default:
-                    return ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE;
-            }
-        } else {
-            switch (rotation) {
-                case Surface.ROTATION_0:
-                case Surface.ROTATION_270:
-                    return ActivityInfo.SCREEN_ORIENTATION_PORTRAIT;
-                default:
-                    return ActivityInfo.SCREEN_ORIENTATION_REVERSE_PORTRAIT;
-            }
         }
     }
 
@@ -367,6 +338,39 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
     protected void onDestroy() {
         inactivityTimer.shutdown();
         super.onDestroy();
+    }
+
+    ViewfinderView getViewfinderView() {
+        return viewfinderView;
+    }
+
+    public Handler getHandler() {
+        return handler;
+    }
+
+    public CameraManager getCameraManager() {
+        return cameraManager;
+    }
+
+    private int getCurrentOrientation() {
+        int rotation = getWindowManager().getDefaultDisplay().getRotation();
+        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            switch (rotation) {
+                case Surface.ROTATION_0:
+                case Surface.ROTATION_90:
+                    return ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE;
+                default:
+                    return ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE;
+            }
+        } else {
+            switch (rotation) {
+                case Surface.ROTATION_0:
+                case Surface.ROTATION_270:
+                    return ActivityInfo.SCREEN_ORIENTATION_PORTRAIT;
+                default:
+                    return ActivityInfo.SCREEN_ORIENTATION_REVERSE_PORTRAIT;
+            }
+        }
     }
 
     @Override
@@ -398,42 +402,43 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
         return super.onKeyDown(keyCode, event);
     }
 
-//    @Override
-//    public boolean onCreateOptionsMenu(Menu menu) {
-//        MenuInflater menuInflater = getMenuInflater();
-//        menuInflater.inflate(R.menu.capture, menu);
-//        return super.onCreateOptionsMenu(menu);
-//    }
-//
-//    @Override
-//    public boolean onOptionsItemSelected(MenuItem item) {
-//        Intent intent = new Intent(Intent.ACTION_VIEW);
-//        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
-//        switch (item.getItemId()) {
-//            case R.id.menu_share:
-//                intent.setClassName(this, ShareActivity.class.getName());
-//                startActivity(intent);
-//                break;
-//            case R.id.menu_history:
-//                intent.setClassName(this, HistoryActivity.class.getName());
-//                startActivityForResult(intent, HISTORY_REQUEST_CODE);
-//                break;
-//            case R.id.menu_settings:
-//                intent.setClassName(this, PreferencesActivity.class.getName());
-//                startActivity(intent);
-//                break;
-//            case R.id.menu_help:
-//                intent.setClassName(this, HelpActivity.class.getName());
-//                startActivity(intent);
-//                break;
-//            default:
-//                return super.onOptionsItemSelected(item);
-//        }
-//        return true;
-//    }
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater menuInflater = getMenuInflater();
+        menuInflater.inflate(R.menu.capture, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        Intent intent = new Intent(Intent.ACTION_VIEW);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
+        int i = item.getItemId();
+        /*if (i == R.id.menu_share) {
+            intent.setClassName(this, ShareActivity.class.getName());
+            startActivity(intent);
+
+        } else if (i == R.id.menu_history) {
+            intent.setClassName(this, HistoryActivity.class.getName());
+            startActivityForResult(intent, HISTORY_REQUEST_CODE);
+
+        } else */if (i == R.id.menu_settings) {
+            intent.setClassName(this, PreferencesActivity.class.getName());
+            startActivity(intent);
+
+        } else if (i == R.id.menu_help) {
+            intent.setClassName(this, HelpActivity.class.getName());
+            startActivity(intent);
+
+        } else {
+            return super.onOptionsItemSelected(item);
+        }
+        return true;
+    }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent intent) {
+        Log.i(TAG,"onActivityResult called");
 //        if (resultCode == RESULT_OK && requestCode == HISTORY_REQUEST_CODE && historyManager != null) {
 //            int itemNumber = intent.getIntExtra(Intents.History.ITEM_NUMBER, -1);
 //            if (itemNumber >= 0) {
@@ -487,6 +492,7 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
      * @param barcode     A greyscale bitmap of the camera data which was decoded.
      */
     public void handleDecode(Result rawResult, Bitmap barcode, float scaleFactor) {
+        Log.i(TAG, "handleDecode called!");
         inactivityTimer.onActivity();
         lastResult = rawResult;
 //        ResultHandler resultHandler = ResultHandlerFactory.makeResultHandler(this, rawResult);

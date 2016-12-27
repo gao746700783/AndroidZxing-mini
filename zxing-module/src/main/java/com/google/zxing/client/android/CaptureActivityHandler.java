@@ -30,11 +30,11 @@ import android.os.Message;
 import android.provider.Browser;
 import android.util.Log;
 
-import com.google.zxing.client.android.camera.CameraManager;
-import com.google.zxing.client.android.decoding.DecodeThread;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.DecodeHintType;
 import com.google.zxing.Result;
+import com.google.zxing.client.android.camera.CameraManager;
+import com.google.zxing.client.android.decoding.DecodeThread;
 import com.google.zxing.client.android.view.ViewfinderResultPointCallback;
 
 import java.util.Collection;
@@ -73,6 +73,7 @@ public final class CaptureActivityHandler extends Handler {
 
     @Override
     public void handleMessage(Message message) {
+        //Log.i(TAG, "handleMessage->" + message.getData());
         if (message.what == R.id.restart_preview) {
             restartPreviewAndDecode();
 

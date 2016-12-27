@@ -1,0 +1,15 @@
+<resources>
+    <style name="AppTheme.FitScreen" parent="AppTheme">
+        <!-- Customize your theme here. -->
+        <!-- window transparent -->
+        <item name="android:windowBackground">@color/transparent</item>
+        <item name="android:windowIsTranslucent">true</item>
+
+        <item name="android:statusBarColor">@color/transparent</item>
+        <item name="android:navigationBarColor">@color/transparent</item>
+        <item name="android:windowTranslucentStatus">true</item>
+        <item name="android:windowTranslucentNavigation">true</item>
+
+
+    </style>
+</resources>

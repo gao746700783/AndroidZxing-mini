@@ -18,17 +18,19 @@
        xmlns:tools="http://schemas.android.com/tools">
 
     <SurfaceView android:id="@+id/preview_view"
-                 android:layout_width="fill_parent"
-                 android:layout_height="fill_parent"/>
+                 android:fitsSystemWindows="true"
+                 android:layout_width="match_parent"
+                 android:layout_height="match_parent"/>
 
     <com.google.zxing.client.android.view.ViewfinderView
         android:id="@+id/viewfinder_view"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"/>
+        android:layout_width="match_parent"
+        android:fitsSystemWindows="true"
+        android:layout_height="match_parent"/>
 
     <LinearLayout android:id="@+id/result_view"
-                  android:layout_width="fill_parent"
-                  android:layout_height="fill_parent"
+                  android:layout_width="match_parent"
+                  android:layout_height="match_parent"
                   android:background="@color/result_view"
                   android:baselineAligned="false"
                   android:orientation="vertical"
@@ -172,7 +174,7 @@
         </LinearLayout>
 
         <LinearLayout android:id="@+id/result_button_view"
-                      android:layout_width="fill_parent"
+                      android:layout_width="match_parent"
                       android:layout_height="wrap_content"
                       android:gravity="center"
                       android:orientation="horizontal">

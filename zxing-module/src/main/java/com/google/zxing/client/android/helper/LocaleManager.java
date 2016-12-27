@@ -167,7 +167,7 @@ public final class LocaleManager {
         return locale.getLanguage();
     }
 
-    static String getTranslatedAssetLanguage() {
+    public static String getTranslatedAssetLanguage() {
         String language = getSystemLanguage();
         return TRANSLATED_HELP_ASSET_LANGUAGES.contains(language) ? language : DEFAULT_LANGUAGE;
     }
