@@ -34,4 +34,6 @@ dependencies {
     // https://mvnrepository.com/artifact/com.google.zxing/core
     compile group: 'com.google.zxing', name: 'core', version: '3.3.0'
 
+    // easy permissions
+    compile 'pub.devrel:easypermissions:0.2.1'
 }

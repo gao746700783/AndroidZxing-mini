@@ -16,6 +16,7 @@
 
 package com.google.zxing.client.android;
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Intent;
@@ -27,6 +28,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -39,6 +41,7 @@ import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.DecodeHintType;
@@ -59,7 +62,11 @@ import com.google.zxing.client.android.view.ViewfinderView;
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
+
+import pub.devrel.easypermissions.AppSettingsDialog;
+import pub.devrel.easypermissions.EasyPermissions;
 
 /**
  * This activity opens the camera and does the actual scanning on a background thread. It draws a
@@ -72,12 +79,15 @@ import java.util.Map;
  *         <p>
  *         custom changes
  */
-public final class CaptureActivity extends Activity implements SurfaceHolder.Callback {
+public final class CaptureActivity extends Activity implements SurfaceHolder.Callback ,
+        EasyPermissions.PermissionCallbacks {
 
     private static final String TAG = CaptureActivity.class.getSimpleName();
 
     private static final long DEFAULT_INTENT_RESULT_DURATION_MS = 1500L;
     private static final long BULK_MODE_SCAN_DELAY_MS = 1000L;
+
+    private static final int REQUEST_CODE_CAMERA = 1;
 
 //    private static final String[] ZXING_URLS = {"http://zxing.appspot.com/scan", "zxing://scan/"};
 //
@@ -470,8 +480,16 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
             Log.e(TAG, "*** WARNING *** surfaceCreated() gave us a null surface!");
         }
         if (!hasSurface) {
-            hasSurface = true;
-            initCamera(holder);
+            //            hasSurface = true;
+            //            initCamera(holder);
+            if (EasyPermissions.hasPermissions(this, Manifest.permission.CAMERA)) {
+                hasSurface = true;
+                initCamera(holder);
+            } else {
+                hasSurface = false;
+                EasyPermissions.requestPermissions(this, getString(R.string.label_need_camera_tips),
+                        REQUEST_CODE_CAMERA, Manifest.permission.CAMERA);
+            }
         }
     }
 
@@ -536,7 +554,6 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
     }
 
     private void handleDecodeExternally(Result rawResult, ResultHandler resultHandler, Bitmap barcode) {
-//
         if (barcode != null) {
             viewfinderView.drawResultBitmap(barcode);
         }
@@ -830,5 +847,30 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
 
     public void drawViewfinder() {
         viewfinderView.drawViewfinder();
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults, this);
+    }
+
+    @Override
+    public void onPermissionsGranted(int requestCode, List<String> perms) {
+        Toast.makeText(this, "权限请求成功！", Toast.LENGTH_SHORT).show();
+        hasSurface = true;
+    }
+
+    @Override
+    public void onPermissionsDenied(int requestCode, List<String> perms) {
+        if (EasyPermissions.somePermissionPermanentlyDenied(this, perms)) {
+            new AppSettingsDialog.Builder(this, getString(R.string.label_rationale_ask_again))
+                    .setTitle(getString(R.string.label_title_settings_dialog))
+                    .setPositiveButton(getString(R.string.label_setting))
+                    .setNegativeButton(getString(R.string.label_ignore), null /* click listener */)
+                    .setRequestCode(REQUEST_CODE_CAMERA)
+                    .build()
+                    .show();
+        }
     }
 }
