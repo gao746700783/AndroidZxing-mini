@@ -190,14 +190,16 @@ public final class ViewfinderView extends View {
                     slideTop - MIDDLE_LINE_WIDTH / 2, frame.right - MIDDLE_LINE_PADDING,
                     slideTop + MIDDLE_LINE_WIDTH / 2, paint);
 
-//            //画扫描框下面的字
-//            paint.setColor(Color.WHITE);
-//            paint.setTextSize(TEXT_SIZE * density);
-//            //paint.setAlpha(0x40);
-//            paint.setTextAlign(Paint.Align.CENTER);
-//            paint.setTypeface(Typeface.create("System", Typeface.BOLD));
-//            canvas.drawText(getResources().getString(R.string.msg_default_status), frame.left + frame.width() / 2,
-//                    (frame.bottom + (float) TEXT_PADDING_TOP * density), paint);
+            //画扫描框下面的字
+            paint.setColor(Color.WHITE);
+            paint.setTextSize(TEXT_SIZE * density);
+            //paint.setAlpha(0x40);
+            paint.setTextAlign(Paint.Align.CENTER);
+            //paint.setTypeface(Typeface.create("System", Typeface.BOLD));
+            canvas.drawText(getResources().getString(R.string.msg_default_status1), frame.left + frame.width() / 2,
+                    (frame.bottom + (float) TEXT_PADDING_TOP * density), paint);
+            canvas.drawText(getResources().getString(R.string.msg_default_status2), frame.left + frame.width() / 2,
+                    (frame.bottom + (float) TEXT_PADDING_TOP * density * 3 / 2), paint);
 
             Collection<ResultPoint> currentPossible = possibleResultPoints;
             Collection<ResultPoint> currentLast = lastPossibleResultPoints;

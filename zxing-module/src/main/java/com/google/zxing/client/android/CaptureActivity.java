@@ -48,13 +48,13 @@ import com.google.zxing.client.android.consts.HelpActivity;
 import com.google.zxing.client.android.consts.IntentSource;
 import com.google.zxing.client.android.consts.Intents;
 import com.google.zxing.client.android.consts.PreferencesActivity;
-import com.google.zxing.client.android.decoding.DecodeFormatManager;
-import com.google.zxing.client.android.decoding.DecodeHintManager;
 import com.google.zxing.client.android.helper.AmbientLightManager;
 import com.google.zxing.client.android.helper.BeepManager;
 import com.google.zxing.client.android.helper.FinishListener;
 import com.google.zxing.client.android.helper.InactivityTimer;
 import com.google.zxing.client.android.helper.ScanFromWebPageManager;
+import com.google.zxing.client.android.result.ResultHandler;
+import com.google.zxing.client.android.result.ResultHandlerFactory;
 import com.google.zxing.client.android.view.ViewfinderView;
 
 import java.io.IOException;
@@ -239,64 +239,64 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
         decodeFormats = null;
         characterSet = null;
 
-        Intent intent = getIntent();
-        if (intent != null) {
-
-            String action = intent.getAction();
-            String dataString = intent.getDataString();
-
-            if (Intents.Scan.ACTION.equals(action)) {
-
-                // Scan the formats the intent requested, and return the result to the calling activity.
-                source = IntentSource.NATIVE_APP_INTENT;
-                decodeFormats = DecodeFormatManager.parseDecodeFormats(intent);
-                decodeHints = DecodeHintManager.parseDecodeHints(intent);
-
-                if (intent.hasExtra(Intents.Scan.WIDTH) && intent.hasExtra(Intents.Scan.HEIGHT)) {
-                    int width = intent.getIntExtra(Intents.Scan.WIDTH, 0);
-                    int height = intent.getIntExtra(Intents.Scan.HEIGHT, 0);
-                    if (width > 0 && height > 0) {
-                        cameraManager.setManualFramingRect(width, height);
-                    }
-                }
-
-                if (intent.hasExtra(Intents.Scan.CAMERA_ID)) {
-                    int cameraId = intent.getIntExtra(Intents.Scan.CAMERA_ID, -1);
-                    if (cameraId >= 0) {
-                        cameraManager.setManualCameraId(cameraId);
-                    }
-                }
-
-                String customPromptMessage = intent.getStringExtra(Intents.Scan.PROMPT_MESSAGE);
-                if (customPromptMessage != null) {
-                    statusView.setText(customPromptMessage);
-                }
-
-            } else if (dataString != null &&
-                    dataString.contains("http://www.google") &&
-                    dataString.contains("/m/products/scan")) {
-
-                // Scan only products and send the result to mobile Product Search.
-                source = IntentSource.PRODUCT_SEARCH_LINK;
-                sourceUrl = dataString;
-                decodeFormats = DecodeFormatManager.PRODUCT_FORMATS;
-
-            } /*else if (isZXingURL(dataString)) {
-
-                // Scan formats requested in query string (all formats if none specified).
-                // If a return URL is specified, send the results there. Otherwise, handle it ourselves.
-                source = IntentSource.ZXING_LINK;
-                sourceUrl = dataString;
-                Uri inputUri = Uri.parse(dataString);
-                scanFromWebPageManager = new ScanFromWebPageManager(inputUri);
-                decodeFormats = DecodeFormatManager.parseDecodeFormats(inputUri);
-                // Allow a sub-set of the hints to be specified by the caller.
-                decodeHints = DecodeHintManager.parseDecodeHints(inputUri);
-
-            }*/
-
-            characterSet = intent.getStringExtra(Intents.Scan.CHARACTER_SET);
-        }
+//        Intent intent = getIntent();
+//        if (intent != null) {
+//
+//            String action = intent.getAction();
+//            String dataString = intent.getDataString();
+//
+//            if (Intents.Scan.ACTION.equals(action)) {
+//
+//                // Scan the formats the intent requested, and return the result to the calling activity.
+//                source = IntentSource.NATIVE_APP_INTENT;
+//                decodeFormats = DecodeFormatManager.parseDecodeFormats(intent);
+//                decodeHints = DecodeHintManager.parseDecodeHints(intent);
+//
+//                if (intent.hasExtra(Intents.Scan.WIDTH) && intent.hasExtra(Intents.Scan.HEIGHT)) {
+//                    int width = intent.getIntExtra(Intents.Scan.WIDTH, 0);
+//                    int height = intent.getIntExtra(Intents.Scan.HEIGHT, 0);
+//                    if (width > 0 && height > 0) {
+//                        cameraManager.setManualFramingRect(width, height);
+//                    }
+//                }
+//
+//                if (intent.hasExtra(Intents.Scan.CAMERA_ID)) {
+//                    int cameraId = intent.getIntExtra(Intents.Scan.CAMERA_ID, -1);
+//                    if (cameraId >= 0) {
+//                        cameraManager.setManualCameraId(cameraId);
+//                    }
+//                }
+//
+//                String customPromptMessage = intent.getStringExtra(Intents.Scan.PROMPT_MESSAGE);
+//                if (customPromptMessage != null) {
+//                    statusView.setText(customPromptMessage);
+//                }
+//
+//            } else if (dataString != null &&
+//                    dataString.contains("http://www.google") &&
+//                    dataString.contains("/m/products/scan")) {
+//
+//                // Scan only products and send the result to mobile Product Search.
+//                source = IntentSource.PRODUCT_SEARCH_LINK;
+//                sourceUrl = dataString;
+//                decodeFormats = DecodeFormatManager.PRODUCT_FORMATS;
+//
+//            } /*else if (isZXingURL(dataString)) {
+//
+//                // Scan formats requested in query string (all formats if none specified).
+//                // If a return URL is specified, send the results there. Otherwise, handle it ourselves.
+//                source = IntentSource.ZXING_LINK;
+//                sourceUrl = dataString;
+//                Uri inputUri = Uri.parse(dataString);
+//                scanFromWebPageManager = new ScanFromWebPageManager(inputUri);
+//                decodeFormats = DecodeFormatManager.parseDecodeFormats(inputUri);
+//                // Allow a sub-set of the hints to be specified by the caller.
+//                decodeHints = DecodeHintManager.parseDecodeHints(inputUri);
+//
+//            }*/
+//
+//            characterSet = intent.getStringExtra(Intents.Scan.CHARACTER_SET);
+//        }
 
         SurfaceView surfaceView = (SurfaceView) findViewById(R.id.preview_view);
         SurfaceHolder surfaceHolder = surfaceView.getHolder();
@@ -495,16 +495,16 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
         Log.i(TAG, "handleDecode called!");
         inactivityTimer.onActivity();
         lastResult = rawResult;
-//        ResultHandler resultHandler = ResultHandlerFactory.makeResultHandler(this, rawResult);
-//
-//        boolean fromLiveScan = barcode != null;
-//        if (fromLiveScan) {
-//            historyManager.addHistoryItem(rawResult, resultHandler);
-//            // Then not from history, so beep/vibrate and we have an image to draw on
-//            beepManager.playBeepSoundAndVibrate();
-//            drawResultPoints(barcode, scaleFactor, rawResult);
-//        }
-//
+        ResultHandler resultHandler = ResultHandlerFactory.makeResultHandler(this, rawResult);
+
+        boolean fromLiveScan = barcode != null;
+        if (fromLiveScan) {
+            //historyManager.addHistoryItem(rawResult, resultHandler);
+            // Then not from history, so beep/vibrate and we have an image to draw on
+            beepManager.playBeepSoundAndVibrate();
+            //drawResultPoints(barcode, scaleFactor, rawResult);
+        }
+
 //        switch (source) {
 //            case NATIVE_APP_INTENT:
 //            case PRODUCT_SEARCH_LINK:
@@ -531,6 +531,31 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
 //                }
 //                break;
 //        }
+
+        handleDecodeExternally(rawResult,resultHandler,barcode);
+    }
+
+    private void handleDecodeExternally(Result rawResult, ResultHandler resultHandler, Bitmap barcode) {
+//
+        if (barcode != null) {
+            viewfinderView.drawResultBitmap(barcode);
+        }
+
+        long resultDurationMS;
+        if (getIntent() == null) {
+            resultDurationMS = DEFAULT_INTENT_RESULT_DURATION_MS;
+        } else {
+            resultDurationMS = getIntent().getLongExtra(Intents.Scan.RESULT_DISPLAY_DURATION_MS,
+                    DEFAULT_INTENT_RESULT_DURATION_MS);
+        }
+
+        if (resultDurationMS > 0) {
+            String rawResultString = String.valueOf(rawResult);
+//            if (rawResultString.length() > 32) {
+//                rawResultString = rawResultString.substring(0, 32) + " ...";
+//            }
+            statusView.setText(getString(resultHandler.getDisplayTitle()) + " : " + rawResultString);
+        }
     }
 
 //    /**
