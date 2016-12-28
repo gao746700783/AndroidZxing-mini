@@ -57,15 +57,15 @@ public final class ViewfinderView extends View {
     /**
      * 扫描框中的中间线的与扫描框左右的间隙
      */
-    private static final int MIDDLE_LINE_PADDING = 5;
+    private static final int MIDDLE_LINE_PADDING = 8;
     /**
      * 中间那条线每次刷新移动的距离
      */
-    private static final int SPEEN_DISTANCE = 5;
+    private static final int SPEEN_DISTANCE = 3;
     /**
      * 字体大小
      */
-    private static final int TEXT_SIZE = 16;
+    private static final int TEXT_SIZE = 14;
     /**
      * 字体距离扫描框下面的距离
      */
@@ -199,7 +199,7 @@ public final class ViewfinderView extends View {
             canvas.drawText(getResources().getString(R.string.msg_default_status1), frame.left + frame.width() / 2,
                     (frame.bottom + (float) TEXT_PADDING_TOP * density), paint);
             canvas.drawText(getResources().getString(R.string.msg_default_status2), frame.left + frame.width() / 2,
-                    (frame.bottom + (float) TEXT_PADDING_TOP * density * 3 / 2), paint);
+                    (frame.bottom + (float) TEXT_PADDING_TOP * density * 7 / 4), paint);
 
             Collection<ResultPoint> currentPossible = possibleResultPoints;
             Collection<ResultPoint> currentLast = lastPossibleResultPoints;
