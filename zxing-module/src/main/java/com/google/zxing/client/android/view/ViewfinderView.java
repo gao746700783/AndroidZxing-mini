@@ -56,7 +56,7 @@ public final class ViewfinderView extends View {
     /**
      * 扫描框中的中间线的宽度
      */
-    private static final int MIDDLE_LINE_WIDTH = 2;
+    private static final int MIDDLE_LINE_WIDTH = 4;
     /**
      * 扫描框中的中间线的与扫描框左右的间隙
      */
@@ -107,6 +107,13 @@ public final class ViewfinderView extends View {
 
     private CameraManager cameraManager;
 
+    private final int DEFAULT_QRCODE_BORDER_COLOR = 0xFF3F51B5;
+    private final int DEFAULT_QRCODE_LINE_COLOR = 0x003F51B5;
+    private int laserLinePosition = 0;
+    private float[] position = new float[]{0f, 0.5f, 1f};
+    private int[] colors = new int[]{DEFAULT_QRCODE_LINE_COLOR,
+            DEFAULT_QRCODE_BORDER_COLOR, DEFAULT_QRCODE_LINE_COLOR};
+
     public ViewfinderView(Context context, AttributeSet attrs) {
         super(context, attrs);
 
@@ -123,10 +130,6 @@ public final class ViewfinderView extends View {
         possibleResultPoints = new HashSet<ResultPoint>(5);
     }
 
-    public int laserLinePosition = 0;
-    public LinearGradient linearGradient;
-    public float[] position = new float[]{0f, 0.5f, 1f};
-    public int[] colors = new int[]{0x00ffffff, 0xffffffff, 0x00ffffff};
     @SuppressLint("DrawAllocation")
     @Override
     public void onDraw(Canvas canvas) {
@@ -170,7 +173,7 @@ public final class ViewfinderView extends View {
         } else {
 
             //画扫描框边上的角，总共8个部分
-            paint.setColor(Color.GREEN);
+            paint.setColor(DEFAULT_QRCODE_BORDER_COLOR);
             canvas.drawRect(frame.left, frame.top, frame.left + ScreenRate,
                     frame.top + CORNER_WIDTH, paint);
             canvas.drawRect(frame.left, frame.top, frame.left + CORNER_WIDTH, frame.top
@@ -193,7 +196,7 @@ public final class ViewfinderView extends View {
             if (laserLinePosition > frame.height()) {
                 laserLinePosition = 0;
             }
-            linearGradient = new LinearGradient(frame.left + MIDDLE_LINE_PADDING,
+            LinearGradient linearGradient = new LinearGradient(frame.left + MIDDLE_LINE_PADDING,
                     frame.top + laserLinePosition,
                     frame.right - 1,
                     frame.top + 10 + laserLinePosition,
