@@ -15,13 +15,16 @@
  */
 package com.google.zxing.client.android.view;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.LinearGradient;
 import android.graphics.Paint;
 import android.graphics.Rect;
+import android.graphics.Shader;
 import android.util.AttributeSet;
 import android.view.View;
 
@@ -120,6 +123,11 @@ public final class ViewfinderView extends View {
         possibleResultPoints = new HashSet<ResultPoint>(5);
     }
 
+    public int laserLinePosition = 0;
+    public LinearGradient linearGradient;
+    public float[] position = new float[]{0f, 0.5f, 1f};
+    public int[] colors = new int[]{0x00ffffff, 0xffffffff, 0x00ffffff};
+    @SuppressLint("DrawAllocation")
     @Override
     public void onDraw(Canvas canvas) {
         if (cameraManager == null) {
@@ -180,6 +188,17 @@ public final class ViewfinderView extends View {
             canvas.drawRect(frame.right - CORNER_WIDTH, frame.bottom - ScreenRate,
                     frame.right, frame.bottom, paint);
 
+            // Draw a red "laser scanner" line through the middle to show decoding is active
+            laserLinePosition = laserLinePosition + 5;
+            if (laserLinePosition > frame.height()) {
+                laserLinePosition = 0;
+            }
+            linearGradient = new LinearGradient(frame.left + MIDDLE_LINE_PADDING,
+                    frame.top + laserLinePosition,
+                    frame.right - 1,
+                    frame.top + 10 + laserLinePosition,
+                    colors, position, Shader.TileMode.CLAMP);
+            paint.setShader(linearGradient);
 
             //绘制中间的线,每次刷新界面，中间的线往下移动SPEEN_DISTANCE
             slideTop += SPEEN_DISTANCE;
@@ -189,6 +208,8 @@ public final class ViewfinderView extends View {
             canvas.drawRect(frame.left + MIDDLE_LINE_PADDING,
                     slideTop - MIDDLE_LINE_WIDTH / 2, frame.right - MIDDLE_LINE_PADDING,
                     slideTop + MIDDLE_LINE_WIDTH / 2, paint);
+            paint.setShader(null);
+
 
             //画扫描框下面的字
             paint.setColor(Color.WHITE);

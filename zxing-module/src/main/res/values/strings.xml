@@ -147,6 +147,7 @@
     <string name="sbc_name">Google Book Search</string>
     <string name="wifi_changing_network">Requesting connection to network\u2026</string>
 
+    <string name="label_title_scan">扫一扫</string>
     <string name="label_need_camera_tips">为了您能够正常使用扫一扫功能，应用需要获得相机权限</string>
     <string name="label_rationale_ask_again">所需权限不完善,是否激活相应权限?</string>
     <string name="label_title_settings_dialog">提示</string>
