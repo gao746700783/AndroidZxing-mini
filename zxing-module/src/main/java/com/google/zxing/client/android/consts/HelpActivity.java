@@ -25,7 +25,7 @@ import com.google.zxing.client.android.R;
 import com.google.zxing.client.android.helper.LocaleManager;
 
 /**
- * An HTML-based help screen.
+ * An HTML-based activity_help screen.
  *
  * @author dswitkin@google.com (Daniel Switkin)
  */
@@ -39,7 +39,7 @@ public final class HelpActivity extends Activity {
     @Override
     protected void onCreate(Bundle icicle) {
         super.onCreate(icicle);
-        setContentView(R.layout.help);
+        setContentView(R.layout.activity_help);
 
         webView = (WebView) findViewById(R.id.help_contents);
 

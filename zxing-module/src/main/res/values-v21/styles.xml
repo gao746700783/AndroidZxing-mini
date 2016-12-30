@@ -1,15 +1,41 @@
 <resources>
-    <style name="AppTheme.FitScreen" parent="AppTheme">
+
+    <!--
+        Base application theme for API 21+. This theme completely replaces
+        AppBaseTheme from BOTH res/values/styles.xml and
+        res/values-v11/styles.xml on API 21+ devices.
+    -->
+    <style name="AppBaseTheme" parent="Theme.AppCompat.DayNight.NoActionBar">
+        <!-- API 21 theme customizations can go here. -->
+
+        <item name="android:windowTranslucentStatus">false</item>
+        <item name="android:windowTranslucentNavigation">true</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+        <!--<item name="android:statusBarColor">@color/colorPrimary</item>-->
+
+        <!-- API 21 theme customizations can go here. -->
+
+        <!-- remove shadow below action bar -->
+        <item name="android:elevation">@null</item>
+        <!-- erase white screen  -->
+        <!--<item name="android:windowIsTranslucent">true</item>-->
+
+    </style>
+
+    <style name="AppTheme.FitScreen" parent="AppBaseTheme">
         <!-- Customize your theme here. -->
         <!-- window transparent -->
         <item name="android:windowBackground">@color/transparent</item>
-        <item name="android:windowIsTranslucent">true</item>
+        <!--<item name="android:windowIsTranslucent">true</item>-->
 
         <item name="android:statusBarColor">@color/transparent</item>
         <item name="android:navigationBarColor">@color/transparent</item>
-        <item name="android:windowTranslucentStatus">true</item>
+        <!--<item name="android:windowTranslucentStatus">true</item>-->
         <item name="android:windowTranslucentNavigation">true</item>
 
+        <item name="colorPrimaryDark">@color/transparent</item>
 
     </style>
 </resources>
