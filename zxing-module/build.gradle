@@ -30,7 +30,8 @@ dependencies {
     testCompile 'junit:junit:4.12'
 
     // https://mvnrepository.com/artifact/com.google.zxing/android-core
-    compile group: 'com.google.zxing', name: 'android-core', version: '3.3.0'
+    // don't need this dependency,import java files directly
+    //compile group: 'com.google.zxing', name: 'android-core', version: '3.3.0'
     // https://mvnrepository.com/artifact/com.google.zxing/core
     compile group: 'com.google.zxing', name: 'core', version: '3.3.0'
 
