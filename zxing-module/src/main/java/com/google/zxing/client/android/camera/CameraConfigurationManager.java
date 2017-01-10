@@ -26,9 +26,9 @@ import android.view.Display;
 import android.view.Surface;
 import android.view.WindowManager;
 
-import com.google.zxing.client.android.consts.PreferencesActivity;
 import com.google.zxing.client.android.camera.open.CameraFacing;
 import com.google.zxing.client.android.camera.open.OpenCamera;
+import com.google.zxing.client.android.consts.PreferencesActivity;
 
 /**
  * A class which deals with reading, parsing, and setting the camera parameters which are used to
@@ -121,9 +121,23 @@ final class CameraConfigurationManager {
         display.getSize(theScreenResolution);
         screenResolution = theScreenResolution;
         Log.i(TAG, "Screen resolution in current orientation: " + screenResolution);
-        cameraResolution = CameraConfigurationUtils.findBestPreviewSizeValue(parameters, screenResolution);
+
+        // 解决图像拉伸问题 1
+        Point screenResolutionForCamera = new Point();
+        screenResolutionForCamera.x = screenResolution.x;
+        screenResolutionForCamera.y = screenResolution.y;
+        // preview size is always something like 480*320, other 320*480
+        if (screenResolution.x < screenResolution.y) {
+            screenResolutionForCamera.x = screenResolution.y;
+            screenResolutionForCamera.y = screenResolution.x;
+        }
+        cameraResolution = CameraConfigurationUtils.findBestPreviewSizeValue(parameters, screenResolutionForCamera);
+        //cameraResolution = CameraConfigurationUtils.findBestPreviewSizeValue(parameters, screenResolution);
+
         Log.i(TAG, "Camera resolution: " + cameraResolution);
-        bestPreviewSize = CameraConfigurationUtils.findBestPreviewSizeValue(parameters, screenResolution);
+        // 解决图像拉伸问题 2
+        bestPreviewSize = CameraConfigurationUtils.findBestPreviewSizeValue(parameters, screenResolutionForCamera);
+        //bestPreviewSize = CameraConfigurationUtils.findBestPreviewSizeValue(parameters, screenResolution);
         Log.i(TAG, "Best available preview size: " + bestPreviewSize);
 
         boolean isScreenPortrait = screenResolution.x < screenResolution.y;
