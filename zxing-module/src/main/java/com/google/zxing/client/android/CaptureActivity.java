@@ -23,14 +23,19 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.preference.PreferenceManager;
+import android.provider.DocumentsContract;
+import android.provider.MediaStore;
 import android.support.annotation.NonNull;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -42,6 +47,7 @@ import android.view.SurfaceView;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -53,11 +59,11 @@ import com.google.zxing.client.android.consts.HelpActivity;
 import com.google.zxing.client.android.consts.IntentSource;
 import com.google.zxing.client.android.consts.Intents;
 import com.google.zxing.client.android.consts.PreferencesActivity;
+import com.google.zxing.client.android.decoding.DecodeHandler;
 import com.google.zxing.client.android.helper.AmbientLightManager;
 import com.google.zxing.client.android.helper.BeepManager;
 import com.google.zxing.client.android.helper.FinishListener;
 import com.google.zxing.client.android.helper.InactivityTimer;
-import com.google.zxing.client.android.helper.ScanFromWebPageManager;
 import com.google.zxing.client.android.result.ResultHandler;
 import com.google.zxing.client.android.result.ResultHandlerFactory;
 import com.google.zxing.client.android.util.SystemBarTintManager;
@@ -82,8 +88,8 @@ import pub.devrel.easypermissions.EasyPermissions;
  *         <p>
  *         custom changes
  */
-public final class CaptureActivity extends Activity implements SurfaceHolder.Callback ,
-        EasyPermissions.PermissionCallbacks {
+public final class CaptureActivity extends Activity implements SurfaceHolder.Callback,
+        EasyPermissions.PermissionCallbacks, View.OnClickListener {
 
     private static final String TAG = CaptureActivity.class.getSimpleName();
 
@@ -91,6 +97,7 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
     //private static final long BULK_MODE_SCAN_DELAY_MS = 1000L;
 
     private static final int REQUEST_CODE_CAMERA = 1;
+    private static final int REQUEST_CODE_ALBUM = 2;
 
     //    private static final String[] ZXING_URLS = {"http://zxing.appspot.com/scan", "zxing://scan/"};
     //
@@ -110,8 +117,11 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
      * 扫描区域
      */
     private ViewfinderView viewfinderView;
-    private TextView statusView;
-    private View resultView;
+    //private TextView statusView;
+    //private View resultView;
+    private ImageView mIvBack;
+    private TextView mTvAlbum;
+
     private Result lastResult;
 
     /**
@@ -202,6 +212,8 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
 
         //
         //setStatusColor();
+        mTvAlbum = (TextView) findViewById(R.id.tv_album);
+        mIvBack = (ImageView) findViewById(R.id.iv_back);
     }
 
     @Override
@@ -224,8 +236,8 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
         viewfinderView = (ViewfinderView) findViewById(R.id.viewfinder_view);
         viewfinderView.setCameraManager(cameraManager);
 
-        resultView = findViewById(R.id.result_view);
-        statusView = (TextView) findViewById(R.id.status_view);
+        //resultView = findViewById(R.id.result_view);
+        //statusView = (TextView) findViewById(R.id.status_view);
 
         handler = null;
         lastResult = null;
@@ -285,7 +297,7 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
         //
         //                String customPromptMessage = intent.getStringExtra(Intents.Scan.PROMPT_MESSAGE);
         //                if (customPromptMessage != null) {
-        //                    statusView.setText(customPromptMessage);
+        //                    //statusView.setText(customPromptMessage);
         //                }
         //
         //            } else if (dataString != null &&
@@ -327,6 +339,9 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
             // Install the callback and wait for surfaceCreated() to init the camera.
             surfaceHolder.addCallback(this);
         }
+
+        mTvAlbum.setOnClickListener(this);
+        mIvBack.setOnClickListener(this);
     }
 
     @Override
@@ -438,7 +453,8 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
             intent.setClassName(this, HistoryActivity.class.getName());
             startActivityForResult(intent, HISTORY_REQUEST_CODE);
 
-        } else */if (i == R.id.menu_settings) {
+        } else */
+        if (i == R.id.menu_settings) {
             intent.setClassName(this, PreferencesActivity.class.getName());
             startActivity(intent);
 
@@ -454,7 +470,7 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent intent) {
-        Log.i(TAG,"onActivityResult called");
+        Log.i(TAG, "onActivityResult called");
         //        if (resultCode == RESULT_OK && requestCode == HISTORY_REQUEST_CODE && historyManager != null) {
         //            int itemNumber = intent.getIntExtra(Intents.History.ITEM_NUMBER, -1);
         //            if (itemNumber >= 0) {
@@ -462,22 +478,138 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
         //                decodeOrStoreSavedBitmap(null, historyItem.getResult());
         //            }
         //        }
+        if (resultCode == Activity.RESULT_OK) {
+            if (requestCode == REQUEST_CODE_ALBUM) {
+                // get album path here
+                String filePath = this.getAlbumPath(intent);
+//                // ready to parse album img
+//                Bitmap bitmap = BitmapFactory.decodeFile(filePath);
+                // TODO
+                decodeOrStoreSavedBitmap(filePath, null);
+
+            } else {
+                Log.i(TAG, "request code:" + requestCode);
+            }
+
+
+        }
+
     }
 
-    private void decodeOrStoreSavedBitmap(Bitmap bitmap, Result result) {
+    /**
+     * get album path
+     * <p>
+     * android版本不同,返回路径不同的情况(一共三种情况,无法解析图片直接奔溃bug),
+     * 1.content://com.android.providers.media.documents/document/image%3A137424  sony
+     * 2.file:///storage/emulated/0/Tencent/QQ_Images/3afe8750f0b4b8ce.jpg       xiaomi
+     * 3.content://media/external/images/media/13323                           smartOS
+     * </p>
+     *
+     * @param intent intent
+     * @return
+     */
+    private String getAlbumPath(Intent intent) {
+        Log.i(TAG, "getAlbumPath called");
+
+        String filePath = "$$";
+
+        Uri contentUri = intent.getData();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT &&
+                DocumentsContract.isDocumentUri(CaptureActivity.this, contentUri)) {
+            String wholeID = DocumentsContract.getDocumentId(contentUri);
+            String id = wholeID.split(":")[1];
+            String[] column = {MediaStore.Images.Media.DATA};
+            String sel = MediaStore.Images.Media._ID + "=?";
+            Cursor cursor = CaptureActivity.this.getContentResolver().query(
+                    MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                    column, sel, new String[]{id}, null);
+            if (cursor != null) {
+                int columnIndex = cursor.getColumnIndex(column[0]);
+                if (cursor.moveToFirst()) {
+                    filePath = cursor.getString(columnIndex);
+                }
+                cursor.close();
+            }
+        } else if (!TextUtils.isEmpty(contentUri.getAuthority())) {
+            Cursor cursor = getContentResolver().query(contentUri,
+                    new String[]{MediaStore.Images.Media.DATA},
+                    null, null, null);
+            if (null != cursor) {
+                cursor.moveToFirst();
+                filePath = cursor.getString(cursor
+                        .getColumnIndex(MediaStore.Images.Media.DATA));
+                cursor.close();
+            }
+        } else {
+            filePath = contentUri.getPath();
+        }
+        Log.i(TAG, "get file path :" + filePath);
+
+        return filePath;
+    }
+
+//    /**
+//     * decode or store saved bitmap
+//     *
+//     * @param bitmap bitmap
+//     * @param result result
+//     */
+//    private void decodeOrStoreSavedBitmap(Bitmap bitmap, Result result) {
+//        // Bitmap isn't used yet -- will be used soon TODO
+//        if (handler == null) {
+//            savedResultToShow = result;
+//        } else {
+//            if (result != null) {
+//                savedResultToShow = result;
+//            } else {
+//                if (bitmap != null){
+//                    Message message = Message.obtain(handler, R.id.decode_album, bitmap);
+////                    Bundle bundle = new Bundle();
+////                    bundle.put
+////                    message.setData();
+//                    handler.sendMessage(message);
+//                }
+//            }
+//            if (savedResultToShow != null) {
+//                Message message = Message.obtain(handler, R.id.decode_succeeded, savedResultToShow);
+//                handler.sendMessage(message);
+//            }
+//            savedResultToShow = null;
+//        }
+//    }
+
+    /**
+     * decode or store saved bitmap
+     *
+     * @param filePath filePath
+     * @param result   result
+     */
+    private void decodeOrStoreSavedBitmap(String filePath, Result result) {
         // Bitmap isn't used yet -- will be used soon
+        if (!TextUtils.isEmpty(filePath)) {
+//            Message message = Message.obtain(handler, R.id.decode_album, filePath);
+//            handler.sendMessage(message);
+            Result rawResult = DecodeHandler.decodeAlbum(filePath);
+            if (null == rawResult) {
+                Log.e(TAG, "rawResult is null");
+                return;
+            }
+
+            handleDecode(rawResult, null, -1);
+            return;
+        }
+
         if (handler == null) {
             savedResultToShow = result;
-        } else {
-            if (result != null) {
-                savedResultToShow = result;
-            }
-            if (savedResultToShow != null) {
-                Message message = Message.obtain(handler, R.id.decode_succeeded, savedResultToShow);
-                handler.sendMessage(message);
-            }
-            savedResultToShow = null;
+        } else if (result != null) {
+            savedResultToShow = result;
         }
+
+        if (savedResultToShow != null) {
+            Message message = Message.obtain(handler, R.id.decode_succeeded, savedResultToShow);
+            handler.sendMessage(message);
+        }
+        savedResultToShow = null;
     }
 
     @Override
@@ -556,7 +688,7 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
         //                break;
         //        }
 
-        handleDecodeExternally(rawResult,resultHandler,barcode);
+        handleDecodeExternally(rawResult, resultHandler, barcode);
     }
 
     private void handleDecodeExternally(Result rawResult, ResultHandler resultHandler, Bitmap barcode) {
@@ -577,7 +709,8 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
             //            if (rawResultString.length() > 32) {
             //                rawResultString = rawResultString.substring(0, 32) + " ...";
             //            }
-            statusView.setText(getString(resultHandler.getDisplayTitle()) + " : " + rawResultString);
+            //statusView.setText(getString(resultHandler.getDisplayTitle()) + " : " + rawResultString);
+            Toast.makeText(this, getString(resultHandler.getDisplayTitle()) + " : " + rawResultString, Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -614,7 +747,7 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
     //        }
     //    }
 
-        // Put up our own UI for how to handle the decoded contents.
+    // Put up our own UI for how to handle the decoded contents.
     //    private void handleDecodeInternally(Result rawResult, ResultHandler resultHandler, Bitmap barcode) {
     //
     //        maybeSetClipboard(resultHandler);
@@ -628,7 +761,7 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
     //
     //        statusView.setVisibility(View.GONE);
     //        viewfinderView.setVisibility(View.GONE);
-    //        resultView.setVisibility(View.VISIBLE);
+    //        //resultView.setVisibility(View.VISIBLE);
     //
     //        ImageView barcodeImageView = (ImageView) findViewById(R.id.barcode_image_view);
     //        if (barcode == null) {
@@ -844,9 +977,9 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
     }
 
     private void resetStatusView() {
-        resultView.setVisibility(View.GONE);
-        statusView.setText(R.string.msg_default_status);
-        statusView.setVisibility(View.VISIBLE);
+        //resultView.setVisibility(View.GONE);
+        //statusView.setText(R.string.msg_default_status);
+        //statusView.setVisibility(View.VISIBLE);
         viewfinderView.setVisibility(View.VISIBLE);
         lastResult = null;
     }
@@ -915,5 +1048,38 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
             win.setAttributes(winParams);
         }
 
+    }
+
+    @Override
+    public void onClick(View v) {
+        int vid = v.getId();
+        if (vid == R.id.iv_back) {
+            setResult(RESULT_CANCELED);
+            finish();
+
+        } else if (vid == R.id.tv_album) {
+            chooseAlbum();
+        }
+
+    }
+
+    /**
+     * 跳转到系统相册选图片
+     * android版本不同,返回路径不同的情况(一共三种情况,无法解析图片直接奔溃bug),
+     * content://com.android.providers.media.documents/document/image%3A137424  sony
+     * file:///storage/emulated/0/Tencent/QQ_Images/3afe8750f0b4b8ce.jpg       xiaomi
+     * content://media/external/images/media/13323                           smartOS
+     */
+    private void chooseAlbum() {
+        Intent innerIntent = new Intent();
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT) {
+            innerIntent.setAction(Intent.ACTION_GET_CONTENT);
+        } else {
+            innerIntent.setAction(Intent.ACTION_OPEN_DOCUMENT);
+        }
+        innerIntent.setType("image/*");
+
+        Intent wrapperIntent = Intent.createChooser(innerIntent, "选择二维码图片");
+        CaptureActivity.this.startActivityForResult(wrapperIntent, REQUEST_CODE_ALBUM);
     }
 }

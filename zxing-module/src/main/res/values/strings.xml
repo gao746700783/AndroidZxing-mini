@@ -153,4 +153,6 @@
     <string name="label_title_settings_dialog">提示</string>
     <string name="label_setting">快速设置</string>
     <string name="label_ignore">继续无视</string>
+    <string name="label_album">Album</string>
+
 </resources>

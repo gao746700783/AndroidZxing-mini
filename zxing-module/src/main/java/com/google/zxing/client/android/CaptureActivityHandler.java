@@ -40,6 +40,9 @@ import com.google.zxing.client.android.view.ViewfinderResultPointCallback;
 import java.util.Collection;
 import java.util.Map;
 
+import static com.google.zxing.client.android.R.id.decode;
+import static com.google.zxing.client.android.R.id.quit;
+
 /**
  * This class handles all the messaging which comprises the state machine for activity_capture.
  *
@@ -95,7 +98,7 @@ public final class CaptureActivityHandler extends Handler {
 
         } else if (message.what == R.id.decode_failed) {// We're decoding as fast as possible, so when one decode fails, start another.
             state = State.PREVIEW;
-            cameraManager.requestPreviewFrame(decodeThread.getHandler(), R.id.decode);
+            cameraManager.requestPreviewFrame(decodeThread.getHandler(), decode);
 
         } else if (message.what == R.id.return_scan_result) {
             activity.setResult(Activity.RESULT_OK, (Intent) message.obj);
@@ -129,6 +132,14 @@ public final class CaptureActivityHandler extends Handler {
                 Log.w(TAG, "Can't find anything to handle VIEW of URI " + url);
             }
 
+        } else if (message.what == R.id.decode_album) {
+            state = State.SUCCESS;
+
+            Message decode_album = Message.obtain(decodeThread.getHandler(), R.id.decode_album);
+            decode_album.obj =message.obj;
+
+            decode_album.sendToTarget();
+
         }
     }
 
@@ -152,7 +163,7 @@ public final class CaptureActivityHandler extends Handler {
     private void restartPreviewAndDecode() {
         if (state == State.SUCCESS) {
             state = State.PREVIEW;
-            cameraManager.requestPreviewFrame(decodeThread.getHandler(), R.id.decode);
+            cameraManager.requestPreviewFrame(decodeThread.getHandler(), decode);
             activity.drawViewfinder();
         }
     }

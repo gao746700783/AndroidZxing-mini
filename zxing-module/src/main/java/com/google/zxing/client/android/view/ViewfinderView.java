@@ -56,7 +56,7 @@ public final class ViewfinderView extends View {
     /**
      * 扫描框中的中间线的宽度
      */
-    private static final int MIDDLE_LINE_WIDTH = 4;
+    private static final int MIDDLE_LINE_WIDTH = 10;
     /**
      * 扫描框中的中间线的与扫描框左右的间隙
      */
@@ -181,22 +181,22 @@ public final class ViewfinderView extends View {
 
             //画扫描框边上的角，总共8个部分
             paint.setColor(DEFAULT_QRCODE_BORDER_COLOR);
-            canvas.drawRect(frame.left, frame.top, frame.left + ScreenRate,
-                    frame.top + CORNER_WIDTH, paint);
-            canvas.drawRect(frame.left, frame.top, frame.left + CORNER_WIDTH, frame.top
-                    + ScreenRate, paint);
-            canvas.drawRect(frame.right - ScreenRate, frame.top, frame.right,
-                    frame.top + CORNER_WIDTH, paint);
-            canvas.drawRect(frame.right - CORNER_WIDTH, frame.top, frame.right, frame.top
-                    + ScreenRate, paint);
-            canvas.drawRect(frame.left, frame.bottom - CORNER_WIDTH, frame.left
-                    + ScreenRate, frame.bottom, paint);
-            canvas.drawRect(frame.left, frame.bottom - ScreenRate,
-                    frame.left + CORNER_WIDTH, frame.bottom, paint);
-            canvas.drawRect(frame.right - ScreenRate, frame.bottom - CORNER_WIDTH,
-                    frame.right, frame.bottom, paint);
-            canvas.drawRect(frame.right - CORNER_WIDTH, frame.bottom - ScreenRate,
-                    frame.right, frame.bottom, paint);
+            // 左上角横线
+            canvas.drawRect(frame.left, frame.top, frame.left + ScreenRate, frame.top + CORNER_WIDTH, paint);
+            // 左上角竖线
+            canvas.drawRect(frame.left, frame.top, frame.left + CORNER_WIDTH, frame.top + ScreenRate, paint);
+            // 右上角横线
+            canvas.drawRect(frame.right - ScreenRate, frame.top, frame.right, frame.top + CORNER_WIDTH, paint);
+            // 右上角竖线
+            canvas.drawRect(frame.right - CORNER_WIDTH, frame.top, frame.right, frame.top + ScreenRate, paint);
+            // 左下角横线
+            canvas.drawRect(frame.left, frame.bottom - ScreenRate, frame.left + CORNER_WIDTH, frame.bottom, paint);
+            // 左下角竖线
+            canvas.drawRect(frame.left, frame.bottom - CORNER_WIDTH, frame.left + ScreenRate, frame.bottom, paint);
+            // 右下角横线
+            canvas.drawRect(frame.right - ScreenRate, frame.bottom - CORNER_WIDTH, frame.right, frame.bottom, paint);
+            // 右下角竖线
+            canvas.drawRect(frame.right - CORNER_WIDTH, frame.bottom - ScreenRate, frame.right, frame.bottom, paint);
 
             // Draw a red "laser scanner" line through the middle to show decoding is active
             laserLinePosition = laserLinePosition + 5;

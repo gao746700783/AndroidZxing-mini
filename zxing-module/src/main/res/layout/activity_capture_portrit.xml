@@ -16,8 +16,8 @@
  -->
 <FrameLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent" android:layout_height="match_parent"
     android:fitsSystemWindows="true">
 
     <SurfaceView android:id="@+id/preview_view"
@@ -31,7 +31,7 @@
 
     <include layout="@layout/layout_title"/>
 
-    <include layout="@layout/layout_result"/>
+    <!--<include layout="@layout/layout_result"/>-->
 
     <TextView android:id="@+id/status_view"
               android:layout_width="wrap_content"
@@ -40,6 +40,15 @@
               android:background="@color/transparent"
               android:gravity="center_horizontal"
               android:text="@string/msg_default_status"
-              android:textColor="@color/status_text"/>
+              android:textColor="@color/status_text"
+              android:visibility="gone"/>
+
+    <android.support.v7.widget.AppCompatImageView
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_gravity="bottom|center_horizontal"
+        android:gravity="center_horizontal"
+        android:padding="@dimen/half_padding"
+        app:srcCompat="@drawable/ic_light_off"/>
 
 </FrameLayout>
