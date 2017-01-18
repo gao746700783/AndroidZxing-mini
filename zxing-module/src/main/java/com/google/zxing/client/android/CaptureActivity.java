@@ -25,6 +25,7 @@ import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
@@ -52,14 +53,16 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.zxing.BarcodeFormat;
+import com.google.zxing.BinaryBitmap;
 import com.google.zxing.DecodeHintType;
+import com.google.zxing.MultiFormatReader;
+import com.google.zxing.RGBLuminanceSource;
 import com.google.zxing.Result;
 import com.google.zxing.client.android.camera.CameraManager;
 import com.google.zxing.client.android.consts.HelpActivity;
 import com.google.zxing.client.android.consts.IntentSource;
 import com.google.zxing.client.android.consts.Intents;
 import com.google.zxing.client.android.consts.PreferencesActivity;
-import com.google.zxing.client.android.decoding.DecodeHandler;
 import com.google.zxing.client.android.helper.AmbientLightManager;
 import com.google.zxing.client.android.helper.BeepManager;
 import com.google.zxing.client.android.helper.FinishListener;
@@ -68,9 +71,11 @@ import com.google.zxing.client.android.result.ResultHandler;
 import com.google.zxing.client.android.result.ResultHandlerFactory;
 import com.google.zxing.client.android.util.SystemBarTintManager;
 import com.google.zxing.client.android.view.ViewfinderView;
+import com.google.zxing.common.HybridBinarizer;
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 
@@ -99,16 +104,6 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
     private static final int REQUEST_CODE_CAMERA = 1;
     private static final int REQUEST_CODE_ALBUM = 2;
 
-    //    private static final String[] ZXING_URLS = {"http://zxing.appspot.com/scan", "zxing://scan/"};
-    //
-    //    private static final int HISTORY_REQUEST_CODE = 0x0000bacc;
-    //
-    //    private static final Collection<ResultMetadataType> DISPLAYABLE_METADATA_TYPES =
-    //            EnumSet.of(ResultMetadataType.ISSUE_NUMBER,
-    //                    ResultMetadataType.SUGGESTED_PRICE,
-    //                    ResultMetadataType.ERROR_CORRECTION_LEVEL,
-    //                    ResultMetadataType.POSSIBLE_COUNTRY);
-
     private CameraManager cameraManager;
     private CaptureActivityHandler handler;
     private Result savedResultToShow;
@@ -121,6 +116,7 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
     //private View resultView;
     private ImageView mIvBack;
     private TextView mTvAlbum;
+    //private AppCompatImageView mAcivLight;
 
     private Result lastResult;
 
@@ -173,34 +169,14 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
      */
     private AmbientLightManager ambientLightManager;
 
-    //    private static boolean isZXingURL(String dataString) {
-    //        if (dataString == null) {
-    //            return false;
-    //        }
-    //        for (String url : ZXING_URLS) {
-    //            if (dataString.startsWith(url)) {
-    //                return true;
-    //            }
-    //        }
-    //        return false;
-    //    }
-
-    //    private static void drawLine(Canvas canvas, Paint paint, ResultPoint a, ResultPoint b, float scaleFactor) {
-    //        if (a != null && b != null) {
-    //            canvas.drawLine(scaleFactor * a.getX(),
-    //                    scaleFactor * a.getY(),
-    //                    scaleFactor * b.getX(),
-    //                    scaleFactor * b.getY(),
-    //                    paint);
-    //        }
-    //    }
-
     @Override
     public void onCreate(Bundle icicle) {
         super.onCreate(icicle);
 
         Window window = getWindow();
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        window.getDecorView().setSystemUiVisibility(
+                View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
         setContentView(R.layout.activity_capture_portrit);
 
         hasSurface = false;
@@ -214,6 +190,7 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
         //setStatusColor();
         mTvAlbum = (TextView) findViewById(R.id.tv_album);
         mIvBack = (ImageView) findViewById(R.id.iv_back);
+        //mAcivLight = (AppCompatImageView) findViewById(R.id.aciv_light);
     }
 
     @Override
@@ -342,6 +319,9 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
 
         mTvAlbum.setOnClickListener(this);
         mIvBack.setOnClickListener(this);
+        //mAcivLight.setOnClickListener(this);
+
+
     }
 
     @Override
@@ -587,9 +567,7 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
     private void decodeOrStoreSavedBitmap(String filePath, Result result) {
         // Bitmap isn't used yet -- will be used soon
         if (!TextUtils.isEmpty(filePath)) {
-//            Message message = Message.obtain(handler, R.id.decode_album, filePath);
-//            handler.sendMessage(message);
-            Result rawResult = DecodeHandler.decodeAlbum(filePath);
+            Result rawResult = this.decodeAlbum(filePath);
             if (null == rawResult) {
                 Log.e(TAG, "rawResult is null");
                 return;
@@ -1059,7 +1037,11 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
 
         } else if (vid == R.id.tv_album) {
             chooseAlbum();
-        }
+        } /*else if (vid == R.id.aciv_light) {
+            // 闪光灯
+            cameraManager.setTorch(mAcivLight.isPressed());
+            mAcivLight.setPressed(!mAcivLight.isPressed());
+        }*/
 
     }
 
@@ -1082,4 +1064,83 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
         Intent wrapperIntent = Intent.createChooser(innerIntent, "选择二维码图片");
         CaptureActivity.this.startActivityForResult(wrapperIntent, REQUEST_CODE_ALBUM);
     }
+
+    /**
+     * decode album from files
+     *
+     * @param albumPath albumPath
+     */
+    public Result decodeAlbum(String albumPath) {
+
+        Result rawResult = null;
+
+        Bitmap bitmap = compress(albumPath);
+
+        //得到图片的宽高
+        int width = bitmap.getWidth();
+        int height = bitmap.getHeight();
+        //得到图片的像素
+        int[] pixels = new int[width * height];
+        //
+        bitmap.getPixels(pixels, 0, width, 0, 0, width, height);
+
+
+        RGBLuminanceSource rgbLuminanceSource = new RGBLuminanceSource(width, height, pixels);
+        //解析转换类型UTF-8
+        Hashtable<DecodeHintType, String> hints = new Hashtable<DecodeHintType, String>();
+        hints.put(DecodeHintType.CHARACTER_SET, "utf-8");
+
+        MultiFormatReader multiFormatReader = new MultiFormatReader();
+        multiFormatReader.setHints(hints);
+
+        //把可视图片转为二进制图片
+        BinaryBitmap binaryBitmap = new BinaryBitmap(new HybridBinarizer(rgbLuminanceSource));
+        try {
+            //解析图片中的code
+            rawResult = multiFormatReader.decode(binaryBitmap);
+        } catch (Exception e) {
+            Log.e(TAG, e.getLocalizedMessage(), e);
+        } finally {
+            multiFormatReader.reset();
+        }
+
+        return rawResult;
+
+    }
+
+    /**
+     * compress bitmap
+     *
+     * @param srcPath srcPath
+     * @return bitmap
+     */
+    public static Bitmap compress(String srcPath) {
+        BitmapFactory.Options newOpts = new BitmapFactory.Options();
+        //开始读入图片，此时把options.inJustDecodeBounds 设回true了
+        newOpts.inJustDecodeBounds = true;
+        Bitmap bitmap = BitmapFactory.decodeFile(srcPath, newOpts);//此时返回bm为空
+
+        newOpts.inJustDecodeBounds = false;
+        int w = newOpts.outWidth;
+        int h = newOpts.outHeight;
+        //现在主流手机比较多是800*480分辨率，所以高和宽我们设置为
+        float hh = 800f;//这里设置高度为800f
+        float ww = 480f;//这里设置宽度为480f
+        //缩放比。由于是固定比例缩放，只用高或者宽其中一个数据进行计算即可
+        int be = 1;//be=1表示不缩放
+        if (w > h && w > ww) {//如果宽度大的话根据宽度固定大小缩放
+            be = (int) (newOpts.outWidth / ww);
+        } else if (w < h && h > hh) {//如果高度高的话根据宽度固定大小缩放
+            be = (int) (newOpts.outHeight / hh);
+        }
+        if (be <= 0)
+            be = 1;
+        newOpts.inSampleSize = be;//设置缩放比例
+        //重新读入图片，注意此时已经把options.inJustDecodeBounds 设回false了
+        bitmap = BitmapFactory.decodeFile(srcPath, newOpts);
+
+        return bitmap;//压缩好比例大小后再进行质量压缩
+    }
+
+
 }

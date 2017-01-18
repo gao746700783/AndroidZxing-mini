@@ -1,0 +1,21 @@
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item android:drawable="@drawable/ic_light_on"
+          android:state_enabled="true"
+          android:state_focused="false"
+          android:state_pressed="false"
+    android:state_checked="false"/><!--选择器的默认颜色-->
+
+    <item android:drawable="@drawable/ic_light_off"
+          android:state_enabled="false"/><!--控件是否接受触摸或者点击事件时的颜色,false不接受-->
+
+    <item android:drawable="@drawable/ic_light_off"
+          android:state_pressed="true"/><!--是否按下，如一个按钮触摸或者点击,true按下-->
+
+    <item android:drawable="@drawable/ic_light_off"
+          android:state_focused="true"/><!--是否取得焦点,true取的焦点-->
+
+    <item android:drawable="@drawable/ic_light_off"
+          android:state_checked="true"/><!--是否取得焦点,true取的焦点-->
+
+</selector>  

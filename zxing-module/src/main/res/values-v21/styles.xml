@@ -37,5 +37,8 @@
 
         <item name="colorPrimaryDark">@color/transparent</item>
 
+        <item name="android:windowFullscreen">true</item>
+        <item name="windowNoTitle">true</item>
+
     </style>
 </resources>

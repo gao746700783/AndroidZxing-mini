@@ -14,16 +14,17 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  -->
-<FrameLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:fitsSystemWindows="true">
+<merge xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <!-- scan area -->
-    <include layout="@layout/layout_capture"/>
+    <SurfaceView android:id="@+id/preview_view"
+                 android:layout_width="match_parent"
+                 android:layout_height="match_parent"
+                 android:fitsSystemWindows="true"/>
 
-    <!-- title -->
-    <include layout="@layout/layout_title"/>
+    <com.google.zxing.client.android.view.ViewfinderView
+        android:id="@+id/viewfinder_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fitsSystemWindows="true"/>
 
-</FrameLayout>
+</merge>

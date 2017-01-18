@@ -109,6 +109,7 @@ public final class ViewfinderView extends View {
 
     private final int DEFAULT_QRCODE_BORDER_COLOR = 0xFF3F51B5;
     private final int DEFAULT_QRCODE_LINE_COLOR = 0x003F51B5;
+
     private int laserLinePosition = 0;
     private float[] position = new float[]{0f, 0.5f, 1f};
     private int[] colors = new int[]{DEFAULT_QRCODE_LINE_COLOR,
