@@ -225,7 +225,7 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
             //noinspection WrongConstant
             setRequestedOrientation(getCurrentOrientation());
         } else {
-            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT);
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_FULL_SENSOR);
         }
 
         resetStatusView();

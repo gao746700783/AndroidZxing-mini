@@ -239,6 +239,7 @@ public final class CameraManager {
 
             // fix a bug ,qrcode scanner not be a rectangle
             height = (height > width) ? width : height;
+            width = (width > height) ? height : width;
 
             int leftOffset = (screenResolution.x - width) / 2;
             int topOffset = (screenResolution.y - height) / 3;
