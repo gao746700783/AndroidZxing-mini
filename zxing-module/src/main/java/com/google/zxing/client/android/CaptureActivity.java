@@ -177,7 +177,7 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         window.getDecorView().setSystemUiVisibility(
                 View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
-        setContentView(R.layout.activity_capture_portrit);
+        setContentView(R.layout.activity_capture);
 
         hasSurface = false;
         inactivityTimer = new InactivityTimer(this);
@@ -221,7 +221,7 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
 
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
 
-        if (prefs.getBoolean(PreferencesActivity.KEY_DISABLE_AUTO_ORIENTATION, true)) {
+        if (prefs.getBoolean(PreferencesActivity.KEY_DISABLE_AUTO_ORIENTATION, false)) {
             //noinspection WrongConstant
             setRequestedOrientation(getCurrentOrientation());
         } else {

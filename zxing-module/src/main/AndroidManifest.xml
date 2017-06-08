@@ -20,7 +20,7 @@
 
         <activity android:name=".CaptureActivity"
                   android:clearTaskOnLaunch="true"
-                  android:screenOrientation="fullSensor"
+                  android:screenOrientation="sensor"
                   android:stateNotNeeded="true"
                   android:theme="@style/AppTheme.FitScreen"
                   android:windowSoftInputMode="stateAlwaysHidden">

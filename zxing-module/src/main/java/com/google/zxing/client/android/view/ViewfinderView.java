@@ -26,6 +26,7 @@ import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.Shader;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.View;
 
 import com.google.zxing.ResultPoint;
@@ -138,13 +139,13 @@ public final class ViewfinderView extends View {
             return; // not ready yet, early draw before done configuring
         }
 
-        // for test ,draw preview area
-        //        Rect frame1 = cameraManager.getFramingRectInPreview();
-        //        if (frame1 == null) {
-        //            return;
-        //        }
-        //        paint.setColor(0x55FFFFFF);
-        //        canvas.drawRect(frame1.left, frame1.top + 1, frame1.right, frame1.bottom, paint);
+        //    // for test ,draw preview area
+        //    Rect frame1 = cameraManager.getFramingRectInPreview();
+        //    if (frame1 == null) {
+        //        return;
+        //    }
+        //    paint.setColor(0x55cc4125);
+        //    canvas.drawRect(frame1.left, frame1.top + 1, frame1.right, frame1.bottom, paint);
 
         ////中间的扫描框，你要修改扫描框的大小，去CameraManager里面修改
         //Rect frame = CameraManager.get().getFramingRect();
@@ -237,6 +238,22 @@ public final class ViewfinderView extends View {
             postInvalidateDelayed(ANIMATION_DELAY, frame.left, frame.top, frame.right, frame.bottom);
 
         }
+    }
+
+    /**
+     * This is called during layout when the size of this view has changed. If
+     * you were just added to the view hierarchy, you're called with the old
+     * values of 0.
+     *
+     * @param w    Current width of this view.
+     * @param h    Current height of this view.
+     * @param oldw Old width of this view.
+     * @param oldh Old height of this view.
+     */
+    @Override
+    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+        super.onSizeChanged(w, h, oldw, oldh);
+        Log.i(TAG, "onSizeChanged called! no use...");
     }
 
     public void drawViewfinder() {

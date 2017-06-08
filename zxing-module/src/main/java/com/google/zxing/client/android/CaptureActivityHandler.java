@@ -44,7 +44,7 @@ import static com.google.zxing.client.android.R.id.decode;
 import static com.google.zxing.client.android.R.id.quit;
 
 /**
- * This class handles all the messaging which comprises the state machine for activity_capture.
+ * This class handles all the messaging which comprises the state machine for activity_capture_test.
  *
  * @author dswitkin@google.com (Daniel Switkin)
  */
