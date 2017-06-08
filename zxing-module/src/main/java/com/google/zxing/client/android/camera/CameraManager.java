@@ -41,8 +41,8 @@ public final class CameraManager {
 
     private static final String TAG = CameraManager.class.getSimpleName();
 
-    private static final int MIN_FRAME_WIDTH = 240;
-    private static final int MIN_FRAME_HEIGHT = 240;
+    private static final int MIN_FRAME_WIDTH = 320;
+    private static final int MIN_FRAME_HEIGHT = 480;
     private static final int MAX_FRAME_WIDTH = 1200; // = 5/8 * 1920
     private static final int MAX_FRAME_HEIGHT = 675; // = 5/8 * 1080
 
@@ -231,7 +231,14 @@ public final class CameraManager {
             width = (width > height) ? height : width;
 
             int leftOffset = (screenResolution.x - width) / 2;
-            int topOffset = (screenResolution.y - height) / 3;
+            int topOffset = (screenResolution.y - height) / 2;
+
+            // 牵涉到屏幕旋转，需要保证
+            //  topOffset + height < screenResolution.x
+            //  leftOffset + width < screenResolution.y
+            // 至此，终于完全解决横竖屏切换出现闪退的bug -_-
+            topOffset = Math.min(topOffset, width * 8 / 5 * 3 / 8);
+
             framingRect = new Rect(leftOffset, topOffset, leftOffset + width, topOffset + height);
             Log.d(TAG, "Calculated framing rect: " + framingRect);
         }

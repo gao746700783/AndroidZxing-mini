@@ -98,7 +98,6 @@ public final class DecodeHandler extends Handler {
 
         // 2.横屏换竖屏 switch screen orientation
         boolean isPortrit = width < height;
-        //Log.i(TAG, "isPortrit:" + isPortrit + ",width=" + width + ",height=" + height);
         if (isPortrit) {
             byte[] rotatedData = new byte[data.length];
             for (int y = 0; y < height; y++) {
