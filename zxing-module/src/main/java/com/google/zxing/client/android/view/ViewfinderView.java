@@ -147,8 +147,7 @@ public final class ViewfinderView extends View {
         //    paint.setColor(0x55cc4125);
         //    canvas.drawRect(frame1.left, frame1.top + 1, frame1.right, frame1.bottom, paint);
 
-        ////中间的扫描框，你要修改扫描框的大小，去CameraManager里面修改
-        //Rect frame = CameraManager.get().getFramingRect();
+        //中间的扫描框，你要修改扫描框的大小，去CameraManager里面修改
         Rect frame = cameraManager.getFramingRect();
         if (frame == null) {
             return;

@@ -69,17 +69,6 @@ public final class CameraManager {
         previewCallback = new PreviewCallback(configManager);
     }
 
-    private static int findDesiredDimensionInRange(int resolution, int hardMin, int hardMax) {
-        int dim = 5 * resolution / 8; // Target 5/8 of each dimension
-        if (dim < hardMin) {
-            return hardMin;
-        }
-        if (dim > hardMax) {
-            return hardMax;
-        }
-        return dim;
-    }
-
     /**
      * Opens the camera driver and initializes the hardware parameters.
      *
@@ -237,7 +226,7 @@ public final class CameraManager {
             int width = findDesiredDimensionInRange(screenResolution.x, MIN_FRAME_WIDTH, MAX_FRAME_WIDTH);
             int height = findDesiredDimensionInRange(screenResolution.y, MIN_FRAME_HEIGHT, MAX_FRAME_HEIGHT);
 
-            // fix a bug ,qrcode scanner not be a rectangle
+            // fix a bug ,QRCode scanner should be a rectangle
             height = (height > width) ? width : height;
             width = (width > height) ? height : width;
 
@@ -247,6 +236,18 @@ public final class CameraManager {
             Log.d(TAG, "Calculated framing rect: " + framingRect);
         }
         return framingRect;
+    }
+
+    private static int findDesiredDimensionInRange(int resolution, int hardMin, int hardMax) {
+        int dim = 5 * resolution / 8; // Target 5/8 of each dimension
+        //    if (dim < hardMin) {
+        //        return hardMin;
+        //    }
+        //    if (dim > hardMax) {
+        //        return hardMax;
+        //    }
+        //    return dim;
+        return Math.max(hardMin, Math.min(dim, hardMax));
     }
 
     /**
@@ -269,16 +270,20 @@ public final class CameraManager {
                 return null;
             }
 
-            // 1.横屏换竖屏
-            //    rect.left = rect.left * cameraResolution.x / screenResolution.x;
-            //    rect.right = rect.right * cameraResolution.x / screenResolution.x;
-            //    rect.top = rect.top * cameraResolution.y / screenResolution.y;
-            //    rect.bottom = rect.bottom * cameraResolution.y / screenResolution.y;
-            rect.left = rect.left * cameraResolution.y / screenResolution.x;
-            rect.right = rect.right * cameraResolution.y / screenResolution.x;
-            rect.top = rect.top * cameraResolution.x / screenResolution.y;
-            rect.bottom = rect.bottom * cameraResolution.x / screenResolution.y;
-
+            // 1.横屏换竖屏 switch screen orientation
+            boolean isPortrit = screenResolution.x < screenResolution.y;
+            Log.i(TAG, "isPortrit:" + isPortrit);
+            if (isPortrit) {
+                rect.left = rect.left * cameraResolution.y / screenResolution.x;
+                rect.right = rect.right * cameraResolution.y / screenResolution.x;
+                rect.top = rect.top * cameraResolution.x / screenResolution.y;
+                rect.bottom = rect.bottom * cameraResolution.x / screenResolution.y;
+            } else {
+                rect.left = rect.left * cameraResolution.x / screenResolution.x;
+                rect.right = rect.right * cameraResolution.x / screenResolution.x;
+                rect.top = rect.top * cameraResolution.y / screenResolution.y;
+                rect.bottom = rect.bottom * cameraResolution.y / screenResolution.y;
+            }
             framingRectInPreview = rect;
         }
         return framingRectInPreview;

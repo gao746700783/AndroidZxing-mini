@@ -17,7 +17,6 @@
 package com.google.zxing.client.android.decoding;
 
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -28,16 +27,13 @@ import com.google.zxing.BinaryBitmap;
 import com.google.zxing.DecodeHintType;
 import com.google.zxing.MultiFormatReader;
 import com.google.zxing.PlanarYUVLuminanceSource;
-import com.google.zxing.RGBLuminanceSource;
 import com.google.zxing.ReaderException;
 import com.google.zxing.Result;
 import com.google.zxing.client.android.CaptureActivity;
 import com.google.zxing.client.android.R;
 import com.google.zxing.common.HybridBinarizer;
-import com.google.zxing.qrcode.QRCodeReader;
 
 import java.io.ByteArrayOutputStream;
-import java.util.Hashtable;
 import java.util.Map;
 
 /**
@@ -100,18 +96,24 @@ public final class DecodeHandler extends Handler {
         long start = System.currentTimeMillis();
         Result rawResult = null;
 
-        // 2.横屏换竖屏
-        byte[] rotatedData = new byte[data.length];
-        for (int y = 0; y < height; y++) {
-            for (int x = 0; x < width; x++)
-                rotatedData[x * height + height - y - 1] = data[x + y * width];
+        // 2.横屏换竖屏 switch screen orientation
+        boolean isPortrit = width < height;
+        //Log.i(TAG, "isPortrit:" + isPortrit + ",width=" + width + ",height=" + height);
+        if (isPortrit) {
+            byte[] rotatedData = new byte[data.length];
+            for (int y = 0; y < height; y++) {
+                for (int x = 0; x < width; x++)
+                    rotatedData[x * height + height - y - 1] = data[x + y * width];
+            }
+            int tmp = width;
+            width = height;
+            height = tmp;
+            data = rotatedData;
         }
-        int tmp = width;
-        width = height;
-        height = tmp;
-        data = rotatedData;
 
-        PlanarYUVLuminanceSource source = activity.getCameraManager().buildLuminanceSource(data, width, height);
+        // 此处，横竖屏切换时未处理好扫描区域  width height，导致闪退
+        PlanarYUVLuminanceSource source = activity.getCameraManager()
+                .buildLuminanceSource(data, width, height);
         if (source != null) {
             BinaryBitmap bitmap = new BinaryBitmap(new HybridBinarizer(source));
             try {
