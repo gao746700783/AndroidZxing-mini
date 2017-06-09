@@ -16,6 +16,7 @@
 
 package com.google.zxing.client.android.decoding;
 
+import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Handler;
@@ -97,18 +98,22 @@ public final class DecodeHandler extends Handler {
         Result rawResult = null;
 
         // 2.横屏换竖屏 switch screen orientation
-        boolean isPortrit = width < height;
-        if (isPortrit) {
-            byte[] rotatedData = new byte[data.length];
-            for (int y = 0; y < height; y++) {
-                for (int x = 0; x < width; x++)
-                    rotatedData[x * height + height - y - 1] = data[x + y * width];
+        if (activity.getResources().getConfiguration().orientation ==
+                Configuration.ORIENTATION_PORTRAIT) {
+            boolean isPortrit = width < height;
+            if (!isPortrit) {
+                byte[] rotatedData = new byte[data.length];
+                for (int y = 0; y < height; y++) {
+                    for (int x = 0; x < width; x++)
+                        rotatedData[x * height + height - y - 1] = data[x + y * width];
+                }
+                int tmp = width;
+                width = height;
+                height = tmp;
+                data = rotatedData;
             }
-            int tmp = width;
-            width = height;
-            height = tmp;
-            data = rotatedData;
         }
+
 
         // 此处，横竖屏切换时未处理好扫描区域  width height，导致闪退
         PlanarYUVLuminanceSource source = activity.getCameraManager()

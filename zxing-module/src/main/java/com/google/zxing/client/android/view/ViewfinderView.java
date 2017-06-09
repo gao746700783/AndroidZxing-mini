@@ -140,12 +140,12 @@ public final class ViewfinderView extends View {
         }
 
         //    // for test ,draw preview area
-        //    Rect frame1 = cameraManager.getFramingRectInPreview();
-        //    if (frame1 == null) {
+        //    Rect framePreview = cameraManager.getFramingRectInPreview();
+        //    if (framePreview == null) {
         //        return;
         //    }
         //    paint.setColor(0x55cc4125);
-        //    canvas.drawRect(frame1.left, frame1.top + 1, frame1.right, frame1.bottom, paint);
+        //    canvas.drawRect(framePreview.left, framePreview.top + 1, framePreview.right, framePreview.bottom, paint);
 
         //中间的扫描框，你要修改扫描框的大小，去CameraManager里面修改
         Rect frame = cameraManager.getFramingRect();

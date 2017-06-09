@@ -126,7 +126,7 @@ final class CameraConfigurationManager {
         Point screenResolutionForCamera = new Point(screenResolution);
         boolean isPortrit = screenResolution.x < screenResolution.y;
         Log.i(TAG, "isPortrit:" + isPortrit);
-        if (!isPortrit) {
+        if (isPortrit) {
             // make sure preview size is always something like 480*320 , not like 320*480
             screenResolutionForCamera.x = screenResolution.y;
             screenResolutionForCamera.y = screenResolution.x;
