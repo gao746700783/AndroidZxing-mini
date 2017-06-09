@@ -122,13 +122,15 @@ final class CameraConfigurationManager {
         screenResolution = theScreenResolution;
         Log.i(TAG, "Screen resolution in current orientation: " + screenResolution);
 
-        // 3.横屏换竖屏 switch screen orientation 解决图像拉伸问题
+        // 3.横竖屏切换 switch screen orientation 解决图像拉伸问题
         Point screenResolutionForCamera = new Point(screenResolution);
-        boolean isPortrit = screenResolution.x < screenResolution.y;
-        Log.i(TAG, "isPortrit:" + isPortrit);
-        if (isPortrit) {
+        boolean isPortrait = screenResolution.x < screenResolution.y;
+        Log.i(TAG, "isPortrit:" + isPortrait);
+        if (isPortrait) {
             // make sure preview size is always something like 480*320 , not like 320*480
+            //noinspection SuspiciousNameCombination
             screenResolutionForCamera.x = screenResolution.y;
+            //noinspection SuspiciousNameCombination
             screenResolutionForCamera.y = screenResolution.x;
         }
 

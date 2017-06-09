@@ -97,11 +97,10 @@ public final class DecodeHandler extends Handler {
         long start = System.currentTimeMillis();
         Result rawResult = null;
 
-        // 2.横屏换竖屏 switch screen orientation
+        // 2.横竖屏切换 switch screen orientation
         if (activity.getResources().getConfiguration().orientation ==
                 Configuration.ORIENTATION_PORTRAIT) {
-            boolean isPortrit = width < height;
-            if (!isPortrit) {
+            if (height < width) {
                 byte[] rotatedData = new byte[data.length];
                 for (int y = 0; y < height; y++) {
                     for (int x = 0; x < width; x++)

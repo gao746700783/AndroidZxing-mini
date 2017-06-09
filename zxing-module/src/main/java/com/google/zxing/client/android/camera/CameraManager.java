@@ -277,7 +277,7 @@ public final class CameraManager {
                 return null;
             }
 
-            // 1.横屏换竖屏 switch screen orientation
+            // 1.横竖屏切换 switch screen orientation
             boolean isPortrit = screenResolution.x < screenResolution.y;
             Log.i(TAG, "isPortrit:" + isPortrit);
             if (isPortrit) {
